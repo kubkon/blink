@@ -4,31 +4,31 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
     const opt = b.standardOptimizeOption(.{});
 
-    // const lib = b.addStaticLibrary(.{
-    //     .name = "libz",
-    //     .target = target,
-    //     .optimize = opt,
-    // });
-    // lib.addIncludePath(".");
-    // lib.installHeadersDirectory("third_party/libz/", ".");
-    // lib.addCSourceFiles(&.{
-    //     "third_party/libz/adler32.c",
-    //     "third_party/libz/crc32.c",
-    //     "third_party/libz/deflate.c",
-    //     "third_party/libz/gzclose.c",
-    //     "third_party/libz/gzlib.c",
-    //     "third_party/libz/gzwrite.c",
-    //     "third_party/libz/inffast.c",
-    //     "third_party/libz/compress.c",
-    //     "third_party/libz/gzread.c",
-    //     "third_party/libz/infback.c",
-    //     "third_party/libz/inflate.c",
-    //     "third_party/libz/inftrees.c",
-    //     "third_party/libz/trees.c",
-    //     "third_party/libz/uncompr.c",
-    //     "third_party/libz/zutil.c",
-    // }, &[_][]const u8{});
-    // lib.linkLibC();
+    const zlib = b.addStaticLibrary(.{
+        .name = "libz",
+        .target = target,
+        .optimize = opt,
+    });
+    zlib.addIncludePath(".");
+    zlib.installHeadersDirectory("third_party/libz/", ".");
+    zlib.addCSourceFiles(&.{
+        "third_party/libz/adler32.c",
+        "third_party/libz/crc32.c",
+        "third_party/libz/deflate.c",
+        "third_party/libz/gzclose.c",
+        "third_party/libz/gzlib.c",
+        "third_party/libz/gzwrite.c",
+        "third_party/libz/inffast.c",
+        "third_party/libz/compress.c",
+        "third_party/libz/gzread.c",
+        "third_party/libz/infback.c",
+        "third_party/libz/inflate.c",
+        "third_party/libz/inftrees.c",
+        "third_party/libz/trees.c",
+        "third_party/libz/uncompr.c",
+        "third_party/libz/zutil.c",
+    }, &[_][]const u8{});
+    zlib.linkLibC();
 
     const lib = b.addStaticLibrary(.{
         .name = "blink",
@@ -50,6 +50,7 @@ pub fn build(b: *std.build.Builder) void {
         "-D_GNU_SOURCE",
     });
     lib.linkLibC();
+    lib.linkLibrary(zlib);
 
     const blink = b.addExecutable(.{
         .name = "blink",
@@ -70,8 +71,7 @@ pub fn build(b: *std.build.Builder) void {
         "-D_BSD_SOURCE",
         "-D_GNU_SOURCE",
     });
-    blink.linkSystemLibrary("z");
-    blink.linkSystemLibrary("m");
+    blink.linkLibrary(zlib);
     blink.linkLibC();
     blink.linkLibrary(lib);
     b.installArtifact(blink);
@@ -95,8 +95,7 @@ pub fn build(b: *std.build.Builder) void {
         "-D_BSD_SOURCE",
         "-D_GNU_SOURCE",
     });
-    blinkenlights.linkSystemLibrary("z");
-    blinkenlights.linkSystemLibrary("m");
+    blinkenlights.linkLibrary(zlib);
     blinkenlights.linkLibC();
     blinkenlights.linkLibrary(lib);
     b.installArtifact(blinkenlights);
@@ -193,7 +192,7 @@ const sources: []const []const u8 = &.{
     "blink/mmx.c",
     "blink/modrm.c",
     "blink/name.c",
-    "blink/oneoff.c",
+    // "blink/oneoff.c",
     "blink/op101.c",
     "blink/open.c",
     "blink/overlays.c",
